@@ -1,111 +1,330 @@
+# "Super Trunfo" de cidades em Python
 
 def main():
-    print("=== Super Trunfo ===
-")
+    # Dados das cidades
+    estado1 = input("Digite o estado da primeira cidade: ").strip()[:1]
+    cod_carta1 = input("Digite o código da carta da primeira cidade: ").strip()
+    cidade1 = input("Digite o nome da primeira cidade (sem espaços): ").strip()
 
-    estado1 = input("Digite o estado da primeira cidade: ")
-    codCarta1 = input("Digite o código da carta da primeira cidade: ")
-    cidade1 = input("Digite o nome da primeira cidade: ")
-    populacao1 = int(input("Digite o número de habitantes da primeira cidade: "))
-    area1 = float(input("Digite a área da primeira cidade: "))
-    pib1 = float(input("Digite o PIB (em milhares) da primeira cidade: "))
-    pontosTuristicos1 = int(input("Digite o número de pontos turísticos da primeira cidade: "))
+    populacao1 = int(input("Digite o número de habitantes da primeira cidade: ") or "0")
+    area1 = float(input("Digite a área da primeira cidade: ") or "0")
+    pib1 = float(input("Digite o PIB (em milhares) da primeira cidade: ") or "0")
+    pontos_turisticos1 = int(input("Digite o número de pontos turísticos da primeira cidade: ") or "0")
+    print()
 
-    densidade1 = populacao1 / area1
-    pibPerCapita1 = (pib1 * 1000) / populacao1
+    densidade1 = float(populacao1) / area1 if area1 != 0 else 0.0
+    pib_per_capita1 = (pib1 * 1000.0) / float(populacao1) if populacao1 != 0 else 0.0
 
-    estado2 = input("Digite o estado da segunda cidade: ")
-    codCarta2 = input("Digite o código da carta da segunda cidade: ")
-    cidade2 = input("Digite o nome da segunda cidade: ")
-    populacao2 = int(input("Digite o número de habitantes da segunda cidade: "))
-    area2 = float(input("Digite a área da segunda cidade: "))
-    pib2 = float(input("Digite o PIB (em milhares) da segunda cidade: "))
-    pontosTuristicos2 = int(input("Digite o número de pontos turísticos da segunda cidade: "))
+    estado2 = input("Digite o estado da segunda cidade: ").strip()[:1]
+    cod_carta2 = input("Digite o código da carta da segunda cidade: ").strip()
+    cidade2 = input("Digite o nome da segunda cidade (sem espaços): ").strip()
 
-    densidade2 = populacao2 / area2
-    pibPerCapita2 = (pib2 * 1000) / populacao2
+    populacao2 = int(input("Digite o número de habitantes da segunda cidade: ") or "0")
+    area2 = float(input("Digite a área da segunda cidade: ") or "0")
+    pib2 = float(input("Digite o PIB (em milhares) da segunda cidade: ") or "0")
+    pontos_turisticos2 = int(input("Digite o número de pontos turísticos da segunda cidade: ") or "0")
+    print()
 
-    superPoder1 = populacao1 + area1 + pib1 + pontosTuristicos1 + pibPerCapita1 + (1 / densidade1)
-    superPoder2 = populacao2 + area2 + pib2 + pontosTuristicos2 + pibPerCapita2 + (1 / densidade2)
+    densidade2 = float(populacao2) / area2 if area2 != 0 else 0.0
+    pib_per_capita2 = (pib2 * 1000.0) / float(populacao2) if populacao2 != 0 else 0.0
 
-    print("
-Comparaçao dos atributos:
-1. Iniciar jogo...
-2. Ver regras.
-3. Sair.")
-    opcao = int(input("Escolha uma opção: "))
+    super_poder1 = (
+        float(populacao1)
+        + area1
+        + pib1
+        + float(pontos_turisticos1)
+        + pib_per_capita1
+        + (1.0 / densidade1 if densidade1 != 0 else 0.0)
+    )
+    super_poder2 = (
+        float(populacao2)
+        + area2
+        + pib2
+        + float(pontos_turisticos2)
+        + pib_per_capita2
+        + (1.0 / densidade2 if densidade2 != 0 else 0.0)
+    )
+
+    pontos1 = 0
+    pontos2 = 0
+    valor1_atrib1 = valor2_atrib1 = 0.0
+    valor1_atrib2 = valor2_atrib2 = 0.0
+
+    print("Comparação dos atributos:")
+    print("1. Iniciar jogo...")
+    print("2. Ver regras.")
+    print("3. Sair.")
+    opcao = int(input("Escolha uma opção: ") or "0")
+    print()
 
     if opcao == 1:
-        print("Iniciando o jogo...")
+        print("Iniciando o jogo...\n")
         print("## Selecione o 1º atributo para comparar ##")
-        print("1. População
-2. Área
-3. PIB
-4. Pontos Turísticos
-5. Densidade Demográfica
-6. PIB per Capita
-7. Super Poder")
-        atributo1 = int(input("Escolha um atributo: "))
+        print("1. População")
+        print("2. Área")
+        print("3. PIB")
+        print("4. Pontos Turísticos")
+        print("5. Densidade Demográfica")
+        print("6. PIB per Capita")
+        print("7. Super Poder")
+        atributo1 = int(input("Escolha um atributo: ") or "0")
+        print()
 
         print("## Selecione o 2º atributo para comparar ##")
-        atributo2 = int(input("Escolha um atributo diferente do primeiro: "))
+        if atributo1 != 1: print("1. População")
+        if atributo1 != 2: print("2. Área")
+        if atributo1 != 3: print("3. PIB")
+        if atributo1 != 4: print("4. Pontos Turísticos")
+        if atributo1 != 5: print("5. Densidade Demográfica")
+        if atributo1 != 6: print("6. PIB per Capita")
+        if atributo1 != 7: print("7. Super Poder")
+        atributo2 = int(input("Escolha um atributo: ") or "0")
+        print()
 
         if atributo1 == atributo2:
             print("Atributos iguais não são permitidos! Favor reiniciar o jogo.")
             return
 
-        pontos1 = 0
-        pontos2 = 0
-
-        def compara(attr, nome):
-            nonlocal pontos1, pontos2
-            if attr == 1:
-                v1, v2 = populacao1, populacao2
-            elif attr == 2:
-                v1, v2 = area1, area2
-            elif attr == 3:
-                v1, v2 = pib1, pib2
-            elif attr == 4:
-                v1, v2 = pontosTuristicos1, pontosTuristicos2
-            elif attr == 5:
-                v1, v2 = densidade1, densidade2
-            elif attr == 6:
-                v1, v2 = pibPerCapita1, pibPerCapita2
+        # ----- 1º atributo -----
+        if atributo1 == 1:
+            valor1_atrib1, valor2_atrib1 = float(populacao1), float(populacao2)
+            print(f"\nComparando População entre {cidade1} e {cidade2}")
+            print("Atributo: População")
+            print(f"{cidade1}: {populacao1} habitantes")
+            print(f"{cidade2}: {populacao2} habitantes")
+            if valor1_atrib1 > valor2_atrib1:
+                pontos1 += 3
+                print(f"Vencedor: Carta 1 ({cidade1})")
+            elif valor1_atrib1 < valor2_atrib1:
+                pontos2 += 3
+                print(f"Vencedor: Carta 2 ({cidade2})")
             else:
-                v1, v2 = superPoder1, superPoder2
+                pontos1 += 1; pontos2 += 1
+                print("Empate!")
 
-            print(f"
-Comparando {nome}: {cidade1} ({v1}) vs {cidade2} ({v2})")
-            if attr == 5:
-                if v1 < v2:
-                    pontos1 += 3
-                    print(f"Vencedor: {cidade1}")
-                elif v2 < v1:
-                    pontos2 += 3
-                    print(f"Vencedor: {cidade2}")
-                else:
-                    pontos1 += 1
-                    pontos2 += 1
-                    print("Empate!")
+        elif atributo1 == 2:
+            valor1_atrib1, valor2_atrib1 = area1, area2
+            print(f"\nComparando Área Territorial entre {cidade1} e {cidade2}")
+            print("Atributo: Área Territorial")
+            print(f"{cidade1}: {area1:.2f} km²")
+            print(f"{cidade2}: {area2:.2f} km²")
+            if valor1_atrib1 > valor2_atrib1:
+                pontos1 += 3
+                print(f"Vencedor: Carta 1 ({cidade1})")
+            elif valor1_atrib1 < valor2_atrib1:
+                pontos2 += 3
+                print(f"Vencedor: Carta 2 ({cidade2})")
             else:
-                if v1 > v2:
-                    pontos1 += 3
-                    print(f"Vencedor: {cidade1}")
-                elif v2 > v1:
-                    pontos2 += 3
-                    print(f"Vencedor: {cidade2}")
-                else:
-                    pontos1 += 1
-                    pontos2 += 1
-                    print("Empate!")
+                pontos1 += 1; pontos2 += 1
+                print("Empate!")
 
-        compara(atributo1, "Atributo 1")
-        compara(atributo2, "Atributo 2")
+        elif atributo1 == 3:
+            valor1_atrib1, valor2_atrib1 = pib1, pib2
+            print(f"\nComparando PIB entre {cidade1} e {cidade2}")
+            print("Atributo: PIB")
+            print(f"{cidade1}: {pib1:.2f} (milhares) reais")
+            print(f"{cidade2}: {pib2:.2f} (milhares) reais")
+            if valor1_atrib1 > valor2_atrib1:
+                pontos1 += 3
+                print(f"Vencedor: Carta 1 ({cidade1})")
+            elif valor1_atrib1 < valor2_atrib1:
+                pontos2 += 3
+                print(f"Vencedor: Carta 2 ({cidade2})")
+            else:
+                pontos1 += 1; pontos2 += 1
+                print("Empate!")
 
-        print("
-=== Resultado da Rodada ===")
-        print(f"{cidade1}: {pontos1} pontos
-{cidade2}: {pontos2} pontos")
+        elif atributo1 == 4:
+            valor1_atrib1, valor2_atrib1 = float(pontos_turisticos1), float(pontos_turisticos2)
+            print(f"\nComparando Pontos Turísticos entre {cidade1} e {cidade2}")
+            print("Atributo: Pontos Turísticos")
+            print(f"{cidade1}: {pontos_turisticos1} pontos turísticos")
+            print(f"{cidade2}: {pontos_turisticos2} pontos turísticos")
+            if valor1_atrib1 > valor2_atrib1:
+                pontos1 += 3
+                print(f"Vencedor: Carta 1 ({cidade1})")
+            elif valor1_atrib1 < valor2_atrib1:
+                pontos2 += 3
+                print(f"Vencedor: Carta 2 ({cidade2})")
+            else:
+                pontos1 += 1; pontos2 += 1
+                print("Empate!")
+
+        elif atributo1 == 5:
+            valor1_atrib1, valor2_atrib1 = densidade1, densidade2
+            print(f"\nComparando Densidade Demográfica entre {cidade1} e {cidade2}")
+            print("Atributo: Densidade Demográfica")
+            print(f"{cidade1}: {densidade1:.2f} hab/km²")
+            print(f"{cidade2}: {densidade2:.2f} hab/km²")
+            if valor1_atrib1 < valor2_atrib1:
+                pontos1 += 3
+                print(f"Vencedor: Carta 1 ({cidade1})")
+            elif valor1_atrib1 > valor2_atrib1:
+                pontos2 += 3
+                print(f"Vencedor: Carta 2 ({cidade2})")
+            else:
+                pontos1 += 1; pontos2 += 1
+                print("Empate!")
+
+        elif atributo1 == 6:
+            valor1_atrib1, valor2_atrib1 = pib_per_capita1, pib_per_capita2
+            print(f"\nComparando PIB per Capita entre {cidade1} e {cidade2}")
+            print("Atributo: PIB per Capita")
+            print(f"{cidade1}: {pib_per_capita1:.2f}")
+            print(f"{cidade2}: {pib_per_capita2:.2f}")
+            if valor1_atrib1 > valor2_atrib1:
+                pontos1 += 3
+                print(f"Vencedor: Carta 1 ({cidade1})")
+            elif valor1_atrib1 < valor2_atrib1:
+                pontos2 += 3
+                print(f"Vencedor: Carta 2 ({cidade2})")
+            else:
+                pontos1 += 1; pontos2 += 1
+                print("Empate!")
+
+        elif atributo1 == 7:
+            valor1_atrib1, valor2_atrib1 = super_poder1, super_poder2
+            print(f"\nComparando Super Poder entre {cidade1} e {cidade2}")
+            print("Atributo: Super Poder")
+            print(f"{cidade1}: {super_poder1:.2f}")
+            print(f"{cidade2}: {super_poder2:.2f}")
+            if valor1_atrib1 > valor2_atrib1:
+                pontos1 += 3
+                print(f"Vencedor: Carta 1 ({cidade1})")
+            elif valor1_atrib1 < valor2_atrib1:
+                pontos2 += 3
+                print(f"Vencedor: Carta 2 ({cidade2})")
+            else:
+                pontos1 += 1; pontos2 += 1
+                print("Empate!")
+        else:
+            print("Opção inválida para o 1º atributo!")
+            return
+
+        # ----- 2º atributo -----
+        if atributo2 == 1:
+            valor1_atrib2, valor2_atrib2 = float(populacao1), float(populacao2)
+            print(f"\nComparando População entre {cidade1} e {cidade2}")
+            print("Atributo: População")
+            print(f"{cidade1}: {populacao1} habitantes")
+            print(f"{cidade2}: {populacao2} habitantes")
+            if valor1_atrib2 > valor2_atrib2:
+                pontos1 += 3
+                print(f"Vencedor: Carta 1 ({cidade1})")
+            elif valor1_atrib2 < valor2_atrib2:
+                pontos2 += 3
+                print(f"Vencedor: Carta 2 ({cidade2})")
+            else:
+                pontos1 += 1; pontos2 += 1
+                print("Empate!")
+
+        elif atributo2 == 2:
+            valor1_atrib2, valor2_atrib2 = area1, area2
+            print(f"\nComparando Área Territorial entre {cidade1} e {cidade2}")
+            print("Atributo: Área Territorial")
+            print(f"{cidade1}: {area1:.2f} km²")
+            print(f"{cidade2}: {area2:.2f} km²")
+            if valor1_atrib2 > valor2_atrib2:
+                pontos1 += 3
+                print(f"Vencedor: Carta 1 ({cidade1})")
+            elif valor1_atrib2 < valor2_atrib2:
+                pontos2 += 3
+                print(f"Vencedor: Carta 2 ({cidade2})")
+            else:
+                pontos1 += 1; pontos2 += 1
+                print("Empate!")
+
+        elif atributo2 == 3:
+            valor1_atrib2, valor2_atrib2 = pib1, pib2
+            print(f"\nComparando PIB entre {cidade1} e {cidade2}")
+            print("Atributo: PIB")
+            print(f"{cidade1}: {pib1:.2f} (milhares) reais")
+            print(f"{cidade2}: {pib2:.2f} (milhares) reais")
+            if valor1_atrib2 > valor2_atrib2:
+                pontos1 += 3
+                print(f"Vencedor: Carta 1 ({cidade1})")
+            elif valor1_atrib2 < valor2_atrib2:
+                pontos2 += 3
+                print(f"Vencedor: Carta 2 ({cidade2})")
+            else:
+                pontos1 += 1; pontos2 += 1
+                print("Empate!")
+
+        elif atributo2 == 4:
+            valor1_atrib2, valor2_atrib2 = float(pontos_turisticos1), float(pontos_turisticos2)
+            print(f"\nComparando Pontos Turísticos entre {cidade1} e {cidade2}")
+            print("Atributo: Pontos Turísticos")
+            print(f"{cidade1}: {pontos_turisticos1} pontos turísticos")
+            print(f"{cidade2}: {pontos_turisticos2} pontos turísticos")
+            if valor1_atrib2 > valor2_atrib2:
+                pontos1 += 3
+                print(f"Vencedor: Carta 1 ({cidade1})")
+            elif valor1_atrib2 < valor2_atrib2:
+                pontos2 += 3
+                print(f"Vencedor: Carta 2 ({cidade2})")
+            else:
+                pontos1 += 1; pontos2 += 1
+                print("Empate!")
+
+        elif atributo2 == 5:
+            valor1_atrib2, valor2_atrib2 = densidade1, densidade2
+            print(f"\nComparando Densidade Demográfica entre {cidade1} e {cidade2}")
+            print("Atributo: Densidade Demográfica")
+            print(f"{cidade1}: {densidade1:.2f} hab/km²")
+            print(f"{cidade2}: {densidade2:.2f} hab/km²")
+            if valor1_atrib2 < valor2_atrib2:
+                pontos1 += 3
+                print(f"Vencedor: Carta 1 ({cidade1})")
+            elif valor1_atrib2 > valor2_atrib2:
+                pontos2 += 3
+                print(f"Vencedor: Carta 2 ({cidade2})")
+            else:
+                pontos1 += 1; pontos2 += 1
+                print("Empate!")
+
+        elif atributo2 == 6:
+            valor1_atrib2, valor2_atrib2 = pib_per_capita1, pib_per_capita2
+            print(f"\nComparando PIB per Capita entre {cidade1} e {cidade2}")
+            print("Atributo: PIB per Capita")
+            print(f"{cidade1}: {pib_per_capita1:.2f}")
+            print(f"{cidade2}: {pib_per_capita2:.2f}")
+            if valor1_atrib2 > valor2_atrib2:
+                pontos1 += 3
+                print(f"Vencedor: Carta 1 ({cidade1})")
+            elif valor1_atrib2 < valor2_atrib2:
+                pontos2 += 3
+                print(f"Vencedor: Carta 2 ({cidade2})")
+            else:
+                pontos1 += 1; pontos2 += 1
+                print("Empate!")
+
+        elif atributo2 == 7:
+            valor1_atrib2, valor2_atrib2 = super_poder1, super_poder2
+            print(f"\nComparando Super Poder entre {cidade1} e {cidade2}")
+            print("Atributo: Super Poder")
+            print(f"{cidade1}: {super_poder1:.2f}")
+            print(f"{cidade2}: {super_poder2:.2f}")
+            if valor1_atrib2 > valor2_atrib2:
+                pontos1 += 3
+                print(f"Vencedor: Carta 1 ({cidade1})")
+            elif valor1_atrib2 < valor2_atrib2:
+                pontos2 += 3
+                print(f"Vencedor: Carta 2 ({cidade2})")
+            else:
+                pontos1 += 1; pontos2 += 1
+                print("Empate!")
+        else:
+            print("Opção inválida para o 2º atributo!")
+            return
+
+        print("\n=== Resultado da Rodada ===")
+        print(f"{cidade1} vs {cidade2}\n")
+        print(f"Atributo 1: {valor1_atrib1:.2f} | {valor2_atrib1:.2f}")
+        print(f"Atributo 2: {valor1_atrib2:.2f} | {valor2_atrib2:.2f}\n")
+        print("Pontos:")
+        print(f"{cidade1}: {pontos1}")
+        print(f"{cidade2}: {pontos2}\n")
+
         if pontos1 > pontos2:
             print(f"{cidade1} venceu a rodada!")
         elif pontos2 > pontos1:
@@ -114,10 +333,13 @@ Comparando {nome}: {cidade1} ({v1}) vs {cidade2} ({v2})")
             print("Empate na rodada!")
 
     elif opcao == 2:
-        print("1. Regra geral: vence a carta com o maior valor no atributo escolhido.
-2. Densidade demográfica: vence a carta com o menor valor.")
-    else:
+        print("1. Regra geral: vence a carta com o maior valor no atributo escolhido.")
+        print("2. Densidade demográfica: vence a carta com o menor valor.")
+    elif opcao == 3:
         print("Saindo do jogo...")
+    else:
+        print("Opção inválida!")
+
 
 if __name__ == "__main__":
     main()

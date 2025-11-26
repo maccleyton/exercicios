@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hub de Jogos: Batalha Naval, Trunfo e Xadrez</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #020617;
+      --bg-panel: #020617;
+      --bg-header: #020617;
+      --border: #1f2937;
+      --accent: #2563eb;
+      --accent-soft: #1d4ed8;
+      --text: #e5e7eb;
+      --text-muted: #9ca3af;
+      --win: #16a34a;
+      --lose: #b91c1c;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 45%);
+      color: var(--text);
+    }
+    header {
+      background: rgba(15, 23, 42, 0.95);
+      padding: 0.75rem 1rem;
+      position: sticky;
+      top: 0;
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      z-index: 10;
+    }
+    header button {
+      background: linear-gradient(145deg, #030712, #020617);
+      color: var(--text);
+      border: 1px solid #374151;
+      padding: 0.5rem 0.9rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    header button span.icon {
+      font-size: 1.05rem;
+    }
+    header button.active {
+      background: linear-gradient(145deg, var(--accent), var(--accent-soft));
+      border-color: var(--accent-soft);
+    }
+    main {
+      padding: 1rem;
+      max-width: 1200px;
+      margin: 0 auto 2rem auto;
+    }
+    section.game {
+      display: none;
+      margin-top: 1rem;
+      background: radial-gradient(circle at top left, #020617 0, #020617 55%);
+      border-radius: 0.9rem;
+      padding: 1rem 1.2rem 1.3rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.55);
+    }
+    section.game.active {
+      display: block;
+    }
+    h2 {
+      margin-top: 0;
+      color: #93c5fd;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    h2 span.icon {
+      font-size: 1.1rem;
+    }
+    h3 {
+      margin: 0.4rem 0;
+      font-size: 1rem;
+      color: #e5e7eb;
+    }
+    p.small {
+      margin: 0.15rem 0 0.8rem 0;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: minmax(260px, 1.1fr) minmax(260px, 1.1fr);
+      gap: 1rem;
+    }
+    @media (max-width: 900px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+    label {
+      display: block;
+      margin-top: 0.45rem;
+      font-size: 0.86rem;
+    }
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 0.32rem 0.4rem;
+      margin-top: 0.2rem;
+      border-radius: 0.4rem;
+      border: 1px solid #374151;
+      background: #020617;
+      color: var(--text);
+      font-size: 0.85rem;
+    }
+    input[type="checkbox"] {
+      margin-right: 0.3rem;
+    }
+    button.action {
+      margin-top: 0.7rem;
+      padding: 0.4rem 0.85rem;
+      background: linear-gradient(145deg, #16a34a, #22c55e);
+      border: 1px solid #15803d;
+      border-radius: 999px;
+      cursor: pointer;
+      color: #f9fafb;
+      font-size: 0.86rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    button.action.secondary {
+      background: #0f172a;
+      border-color: #374151;
+      color: #e5e7eb;
+    }
+    button.action.danger {
+      background: linear-gradient(145deg, #b91c1c, #ef4444);
+      border-color: #7f1d1d;
+    }
+    .log, pre {
+      background: #020617;
+      border: 1px solid #111827;
+      border-radius: 0.5rem;
+      padding: 0.55rem 0.7rem;
+      font-size: 0.8rem;
+      white-space: pre-wrap;
+      max-height: 260px;
+      overflow-y: auto;
+      margin-top: 0.5rem;
+    }
+    .log strong {
+      color: #facc15;
+    }
+
+    /* Batalha Naval */
+    .panel {
+      border-radius: 0.65rem;
+      border: 1px solid #111827;
+      padding: 0.6rem 0.7rem;
+      background: radial-gradient(circle at top, #020617 0, #020617 65%);
+    }
+    .panel-title {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.35rem;
+    }
+    .board {
+      border-collapse: collapse;
+      margin-top: 0.4rem;
+      background: #020617;
+      border-radius: 0.4rem;
+      overflow: hidden;
+    }
+    .board th, .board td {
+      border: 1px solid #111827;
+      width: 26px;
+      height: 26px;
+      text-align: center;
+      font-size: 0.7rem;
+      padding: 0;
+    }
+    .board th {
+      background: #020617;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .cell-water {
+      background: #020617;
+    }
+    .cell-ship {
+      background: #15803d;
+    }
+    .cell-hit {
+      background: #b91c1c;
+    }
+    .cell-ship-hit {
+      background: linear-gradient(145deg, #b91c1c, #f97316);
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem 0.8rem;
+      margin-top: 0.5rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .legend-color {
+      width: 14px;
+      height: 14px;
+      border-radius: 0.2rem;
+    }
+    .preview-grid {
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+    }
+    .preview-grid td {
+      width: 18px;
+      height: 18px;
+      border: 1px solid #1f2937;
+      text-align: center;
+      font-size: 0.7rem;
+    }
+    .preview-active {
+      background: #f97316;
+    }
+
+    /* Super Trunfo */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 1fr));
+      gap: 0.8rem;
+    }
+    @media (max-width: 900px) {
+      .cards {
+        grid-template-columns: 1fr;
+      }
+    }
+    .card {
+      border-radius: 0.9rem;
+      border: 1px solid #1e293b;
+      background: radial-gradient(circle at top, #0b1120 0, #020617 60%);
+      padding: 0.7rem 0.8rem 0.8rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at top left, rgba(37,99,235,0.08), transparent 55%);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      z-index: 1;
+      position: relative;
+    }
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .card-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+    }
+    .card-body {
+      margin-top: 0.5rem;
+      z-index: 1;
+      position: relative;
+    }
+    .compare-panel {
+      margin-top: 0.8rem;
+      border-radius: 0.65rem;
+      border: 1px solid #111827;
+      padding: 0.6rem 0.7rem;
+      background: radial-gradient(circle at top, #020617 0, #020617 60%);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.72rem;
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      color: var(--text-muted);
+    }
+    .result-line {
+      margin-top: 0.35rem;
+      font-size: 0.85rem;
+    }
+    .result-line.winner {
+      color: var(--win);
+    }
+    .result-line.loser {
+      color: var(--lose);
+    }
+
+    /* Xadrez */
+    .chess-container {
+      display: grid;
+      grid-template-columns: minmax(260px, 1.1fr) minmax(260px, 1.1fr);
+      gap: 1rem;
+    }
+    @media (max-width: 900px) {
+      .chess-container {
+        grid-template-columns: 1fr;
+      }
+    }
+    .chess-board {
+      border-collapse: collapse;
+      margin-top: 0.4rem;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+    .chess-board th, .chess-board td {
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      font-size: 0.78rem;
+      padding: 0;
+      border: 1px solid #020617;
+    }
+    .chess-board th {
+      background: #020617;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .square-light {
+      background: #e5e7eb;
+      color: #020617;
+    }
+    .square-dark {
+      background: #4b5563;
+      color: #f9fafb;
+    }
+    .square-path {
+      box-shadow: inset 0 0 0 3px #22c55e;
+    }
+    .square-start {
+      box-shadow: inset 0 0 0 3px #f97316;
+    }
+    .square-label {
+      font-size: 0.74rem;
+      opacity: 0.8;
+    }
+    .path-list {
+      font-size: 0.82rem;
+      margin-top: 0.5rem;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <button id="btn-batalha" class="active"><span class="icon">🚢</span>Batalha Naval</button>
+    <button id="btn-trunfo"><span class="icon">🃏</span>Super Trunfo</button>
+    <button id="btn-xadrez"><span class="icon">♟️</span>Xadrez</button>
+  </header>
+
+  <main>
+    <!-- Jogo 1: Batalha Naval -->
+    <section id="game-batalha" class="game active">
+      <h2><span class="icon">🚢</span>Batalha Naval com Habilidades</h2>
+      <p class="small">
+        Tabuleiro 10×10 com navios fixos, habilidades em área (cone, cruz e octaedro) e representação visual de água, navios, área atingida e acertos.
+      </p>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-title">Configuração de Ataque</div>
+
+          <label>Habilidade
+            <select id="habilidade-select">
+              <option value="cone">Cone de Fogo 🔥</option>
+              <option value="cruz">Cruzada 💥</option>
+              <option value="octaedro">Octaedro 🔷</option>
+            </select>
+          </label>
+
+          <label>Alvo (linha e coluna)
+            <div style="display:flex; gap:0.4rem; margin-top:0.2rem;">
+              <select id="batalha-linha" style="flex:1;">
+                <!-- linhas 1–10 -->
+              </select>
+              <select id="batalha-coluna" style="flex:1;">
+                <!-- colunas A–J -->
+              </select>
+            </div>
+          </label>
+
+          <label style="margin-top:0.5rem;">
+            <input type="checkbox" id="mostrar-navios" checked />
+            Mostrar navios na visualização
+          </label>
+
+          <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+            <button class="action" id="btn-batalha-aplicar">Aplicar habilidade</button>
+            <button class="action secondary" id="btn-batalha-reset">Reiniciar tabuleiro</button>
+          </div>
+
+          <div class="legend">
+            <div class="legend-item">
+              <span class="legend-color cell-water"></span><span>Água</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color cell-ship"></span><span>Navio</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color cell-hit"></span><span>Área atingida</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color cell-ship-hit"></span><span>Navio atingido</span>
+            </div>
+          </div>
+
+          <div style="margin-top:0.5rem;">
+            <div class="panel-title">Matriz da Habilidade (5×5)</div>
+            <table class="preview-grid" id="habilidade-preview"></table>
+          </div>
+
+          <div class="log" id="batalha-log"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Tabuleiro de Batalha (10×10)</div>
+          <div id="batalha-board"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Jogo 2: Super Trunfo Cidades -->
+    <section id="game-trunfo" class="game">
+      <h2><span class="icon">🃏</span>Super Trunfo de Cidades</h2>
+      <p class="small">
+        Compare duas cidades por até dois atributos (com regra especial para densidade demográfica) e veja o vencedor visualmente destacado.
+      </p>
+
+      <div class="cards">
+        <div class="card" id="card1">
+          <div class="card-header">
+            <div>
+              <div class="card-label">Carta 1</div>
+              <div class="card-title"><input type="text" id="c1-nome" value="Cidade A" style="width:140px; font-size:0.86rem; background:transparent; border:1px solid #1f2937; border-radius:999px; padding:0.15rem 0.5rem;"></div>
+            </div>
+          </div>
+          <div class="card-body">
+            <label>População
+              <input type="number" id="c1-pop" value="1000000">
+            </label>
+            <label>Área (km²)
+              <input type="number" id="c1-area" value="500">
+            </label>
+            <label>PIB (milhares)
+              <input type="number" id="c1-pib" value="800000">
+            </label>
+            <label>Pontos Turísticos
+              <input type="number" id="c1-pontos" value="10">
+            </label>
+          </div>
+        </div>
+
+        <div class="card" id="card2">
+          <div class="card-header">
+            <div>
+              <div class="card-label">Carta 2</div>
+              <div class="card-title"><input type="text" id="c2-nome" value="Cidade B" style="width:140px; font-size:0.86rem; background:transparent; border:1px solid #1f2937; border-radius:999px; padding:0.15rem 0.5rem;"></div>
+            </div>
+          </div>
+          <div class="card-body">
+            <label>População
+              <input type="number" id="c2-pop" value="700000">
+            </label>
+            <label>Área (km²)
+              <input type="number" id="c2-area" value="400">
+            </label>
+            <label>PIB (milhares)
+              <input type="number" id="c2-pib" value="600000">
+            </label>
+            <label>Pontos Turísticos
+              <input type="number" id="c2-pontos" value="7">
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="compare-panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+          <div>
+            <span class="badge">Atributos da rodada</span>
+            <div style="display:flex; gap:0.3rem; margin-top:0.35rem; flex-wrap:wrap;">
+              <select id="atributo1-select" style="min-width:180px;">
+                <option value="pop">1. População (maior)</option>
+                <option value="area">2. Área (maior)</option>
+                <option value="pib">3. PIB (maior)</option>
+                <option value="pontos">4. Pontos Turísticos (maior)</option>
+                <option value="densidade">5. Densidade (menor)</option>
+                <option value="pibcapita">6. PIB per Capita (maior)</option>
+                <option value="superpoder">7. Super Poder (maior)</option>
+              </select>
+              <select id="atributo2-select" style="min-width:180px;">
+                <option value="">(Opcional) 2º atributo</option>
+                <option value="pop">População (maior)</option>
+                <option value="area">Área (maior)</option>
+                <option value="pib">PIB (maior)</option>
+                <option value="pontos">Pontos Turísticos (maior)</option>
+                <option value="densidade">Densidade (menor)</option>
+                <option value="pibcapita">PIB per Capita (maior)</option>
+                <option value="superpoder">Super Poder (maior)</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+            <button class="action" id="btn-trunfo-run">Comparar rodada</button>
+            <button class="action secondary" id="btn-trunfo-clear">Limpar resultado</button>
+          </div>
+        </div>
+        <div class="log" id="trunfo-log"></div>
+      </div>
+    </section>
+
+    <!-- Jogo 3: Xadrez -->
+    <section id="game-xadrez" class="game">
+      <h2><span class="icon">♟️</span>Movimentos de Peças de Xadrez</h2>
+      <p class="small">
+        Tabuleiro 8×8 com destaque visual da posição inicial e da trajetória para Torre, Bispo, Rainha e Cavalo, seguindo os mesmos deslocamentos do código em C.
+      </p>
+
+      <div class="chess-container">
+        <div class="panel">
+          <div class="panel-title">Peça e movimento</div>
+          <label>Peça
+            <select id="peca-xadrez">
+              <option value="torre">Torre (de a1 para direita 5 casas)</option>
+              <option value="bispo">Bispo (de c1 na diagonal 5 casas)</option>
+              <option value="rainha">Rainha (de h3 para esquerda 7 casas)</option>
+              <option value="cavalo">Cavalo (de f8: 2 para baixo, 1 esquerda)</option>
+            </select>
+          </label>
+          <button class="action" id="btn-xadrez-run">Mostrar movimento</button>
+
+          <div class="path-list" id="xadrez-path"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Tabuleiro de Xadrez (8×8)</div>
+          <div id="xadrez-board"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // ========= Navegação entre jogos =========
+    const btnBatalha = document.getElementById('btn-batalha');
+    const btnTrunfo = document.getElementById('btn-trunfo');
+    const btnXadrez = document.getElementById('btn-xadrez');
+    const secBatalha = document.getElementById('game-batalha');
+    const secTrunfo = document.getElementById('game-trunfo');
+    const secXadrez = document.getElementById('game-xadrez');
+
+    function showGame(game) {
+      [secBatalha, secTrunfo, secXadrez].forEach(s => s.classList.remove('active'));
+      [btnBatalha, btnTrunfo, btnXadrez].forEach(b => b.classList.remove('active'));
+      if (game === 'batalha') {
+        secBatalha.classList.add('active');
+        btnBatalha.classList.add('active');
+      } else if (game === 'trunfo') {
+        secTrunfo.classList.add('active');
+        btnTrunfo.classList.add('active');
+      } else {
+        secXadrez.classList.add('active');
+        btnXadrez.classList.add('active');
+      }
+    }
+
+    btnBatalha.addEventListener('click', () => showGame('batalha'));
+    btnTrunfo.addEventListener('click', () => showGame('trunfo'));
+    btnXadrez.addEventListener('click', () => showGame('xadrez'));
+
+    // ========= Jogo 1: Batalha Naval =========
+    const LINHAS = 10;
+    const COLUNAS = 10;
+    const HABILIDADESLIN = 5;
+    const HABILIDADESCOL = 5;
+
+    let tabuleiro = Array.from({ length: LINHAS }, () => Array(COLUNAS).fill(0));
+    let matrizCone = Array.from({ length: HABILIDADESLIN }, () => Array(HABILIDADESCOL).fill(0));
+    let matrizCruz = Array.from({ length: HABILIDADESLIN }, () => Array(HABILIDADESCOL).fill(0));
+    let matrizOctaedro = Array.from({ length: HABILIDADESLIN }, () => Array(HABILIDADESCOL).fill(0));
+
+    const batalhaLog = document.getElementById('batalha-log');
+    const batalhaBoardContainer = document.getElementById('batalha-board');
+    const habilidadePreview = document.getElementById('habilidade-preview');
+    const selectLinha = document.getElementById('batalha-linha');
+    const selectColuna = document.getElementById('batalha-coluna');
+    const mostrarNaviosCheckbox = document.getElementById('mostrar-navios');
+
+    // Preenche selects de linha/coluna
+    (function initSelectors() {
+      for (let l = 1; l <= LINHAS; l++) {
+        const opt = document.createElement('option');
+        opt.value = l - 1;
+        opt.textContent = 'Linha ' + l;
+        if (l === Math.floor(LINHAS / 2) + 1) opt.selected = true;
+        selectLinha.appendChild(opt);
+      }
+      for (let c = 0; c < COLUNAS; c++) {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = 'Coluna ' + String.fromCharCode('A'.charCodeAt(0) + c);
+        if (c === Math.floor(COLUNAS / 2)) opt.selected = true;
+        selectColuna.appendChild(opt);
+      }
+    })();
+
+    function inicializarTabuleiro() {
+      for (let i = 0; i < LINHAS; i++) {
+        for (let j = 0; j < COLUNAS; j++) {
+          tabuleiro[i][j] = 0;
+        }
+      }
+    }
+
+    // mesmos 4 navios do código em C
+    function posicionarNaviosFixos() {
+      // horizontal
+      const navioH = [3,3,3];
+      const navioV = [3,3,3];
+      const navioD1 = [3,3,3];
+      const navioD2 = [3,3,3];
+
+      let linhaH = 8, colunaH = 3;
+      let linhaV = 7, colunaV = 0;
+      let linhaD1 = 0, colunaD1 = 0;
+      let linhaD2 = 0, colunaD2 = 9;
+
+      for (let i = 0; i < 3; i++) {
+        tabuleiro[linhaH][colunaH + i] = navioH[i];
+        tabuleiro[linhaV + i][colunaV] = navioV[i];
+        tabuleiro[linhaD1 + i][colunaD1 + i] = navioD1[i];
+        tabuleiro[linhaD2 + i][colunaD2 - i] = navioD2[i];
+      }
+    }
+
+    function renderTabuleiro() {
+      const showShips = mostrarNaviosCheckbox.checked;
+      let html = '<table class="board"><thead><tr><th></th>';
+      for (let c = 0; c < COLUNAS; c++) {
+        html += '<th>' + String.fromCharCode('A'.charCodeAt(0) + c) + '</th>';
+      }
+      html += '</tr></thead><tbody>';
+      for (let l = 0; l < LINHAS; l++) {
+        html += '<tr><th>' + (l + 1) + '</th>';
+        for (let c = 0; c < COLUNAS; c++) {
+          const v = tabuleiro[l][c];
+          let cls = 'cell-water';
+          if (v === 3 && showShips) cls = 'cell-ship';
+          if (v === 5) cls = 'cell-hit';
+          if (v === 8) cls = 'cell-ship-hit';
+          html += '<td class="' + cls + '"></td>';
+        }
+        html += '</tr>';
+      }
+      html += '</tbody></table>';
+      batalhaBoardContainer.innerHTML = html;
+    }
+
+    function atualizarPreview(matriz) {
+      let html = '';
+      for (let i = 0; i < HABILIDADESLIN; i++) {
+        html += '<tr>';
+        for (let j = 0; j < HABILIDADESCOL; j++) {
+          const active = matriz[i][j] === 1 ? 'preview-active' : '';
+          html += '<td class="' + active + '"></td>';
+        }
+        html += '</tr>';
+      }
+      habilidadePreview.innerHTML = html;
+    }
+
+    function gerarCone(show) {
+      for (let i = 0; i < HABILIDADESLIN; i++) {
+        for (let j = 0; j < HABILIDADESCOL; j++) {
+          if (i === 0 && j === 2) matrizCone[i][j] = 1;
+          else if (i === 1 && j >= 1 && j <= 3) matrizCone[i][j] = 1;
+          else if (i === 2 && j >= 0 && j <= 4) matrizCone[i][j] = 1;
+          else matrizCone[i][j] = 0;
+        }
+      }
+      if (show) {
+        let s = 'Habilidade -> Cone de Fogo 🔥\n';
+        matrizCone.forEach(l => s += l.join(' ') + '\n');
+        batalhaLog.textContent = s + '\n';
+      }
+      atualizarPreview(matrizCone);
+      return matrizCone;
+    }
+
+    function gerarCruz(show) {
+      for (let i = 0; i < HABILIDADESLIN; i++) {
+        for (let j = 0; j < HABILIDADESCOL; j++) {
+          matrizCruz[i][j] = (i === 2 || j === 2) ? 1 : 0;
+        }
+      }
+      if (show) {
+        let s = 'Habilidade -> Cruzada 💥\n';
+        matrizCruz.forEach(l => s += l.join(' ') + '\n');
+        batalhaLog.textContent = s + '\n';
+      }
+      atualizarPreview(matrizCruz);
+      return matrizCruz;
+    }
+
+    function gerarOctaedro(show) {
+      const centro = Math.floor(HABILIDADESLIN / 2);
+      for (let i = 0; i < HABILIDADESLIN; i++) {
+        for (let j = 0; j < HABILIDADESCOL; j++) {
+          matrizOctaedro[i][j] = (Math.abs(i - centro) + Math.abs(j - centro) <= 2) ? 1 : 0;
+        }
+      }
+      if (show) {
+        let s = 'Habilidade -> Octaedro 🔷\n';
+        matrizOctaedro.forEach(l => s += l.join(' ') + '\n');
+        batalhaLog.textContent = s + '\n';
+      }
+      atualizarPreview(matrizOctaedro);
+      return matrizOctaedro;
+    }
+
+    function aplicarHabilidade(posLinha, posColuna, habilidade) {
+      const centroLinha = Math.floor(HABILIDADESLIN / 2);
+      const centroColuna = Math.floor(HABILIDADESCOL / 2);
+      let acertos = 0;
+      for (let i = 0; i < HABILIDADESLIN; i++) {
+        for (let j = 0; j < HABILIDADESCOL; j++) {
+          if (habilidade[i][j] === 1) {
+            const alvoLinha = posLinha + i - centroLinha;
+            const alvoColuna = posColuna + j - centroColuna;
+            if (alvoLinha >= 0 && alvoLinha < LINHAS && alvoColuna >= 0 && alvoColuna < COLUNAS) {
+              if (tabuleiro[alvoLinha][alvoColuna] === 3) {
+                tabuleiro[alvoLinha][alvoColuna] = 8; // navio atingido
+                acertos++;
+              } else if (tabuleiro[alvoLinha][alvoColuna] === 0) {
+                tabuleiro[alvoLinha][alvoColuna] = 5; // água atingida
+              }
+            }
+          }
+        }
+      }
+      return acertos;
+    }
+
+    document.getElementById('habilidade-select').addEventListener('change', (e) => {
+      const hab = e.target.value;
+      if (hab === 'cone') gerarCone(false);
+      else if (hab === 'cruz') gerarCruz(false);
+      else gerarOctaedro(false);
+    });
+
+    document.getElementById('btn-batalha-aplicar').addEventListener('click', () => {
+      const linha = Number(selectLinha.value);
+      const coluna = Number(selectColuna.value);
+      const hab = document.getElementById('habilidade-select').value;
+      let matriz;
+      if (hab === 'cone') matriz = gerarCone(true);
+      else if (hab === 'cruz') matriz = gerarCruz(true);
+      else matriz = gerarOctaedro(true);
+
+      const acertos = aplicarHabilidade(linha, coluna, matriz);
+      batalhaLog.textContent += `Habilidade aplicada em ${String.fromCharCode('A'.charCodeAt(0) + coluna)}${linha+1}.\n`;
+      batalhaLog.textContent += `Células de navio atingidas: ${acertos}.\n`;
+      renderTabuleiro();
+    });
+
+    document.getElementById('btn-batalha-reset').addEventListener('click', () => {
+      inicializarTabuleiro();
+      posicionarNaviosFixos();
+      batalhaLog.textContent = 'Tabuleiro reiniciado e navios reposicionados.\n';
+      renderTabuleiro();
+    });
+
+    mostrarNaviosCheckbox.addEventListener('change', renderTabuleiro);
+
+    // Inicialização inicial
+    inicializarTabuleiro();
+    posicionarNaviosFixos();
+    gerarCone(false);
+    renderTabuleiro();
+
+    // ========= Jogo 2: Super Trunfo Cidades =========
+    const trunfoLog = document.getElementById('trunfo-log');
+    const card1 = document.getElementById('card1');
+    const card2 = document.getElementById('card2');
+
+    function calcularAtributos(nome, pop, area, pib, pts) {
+      const densidade = area > 0 ? pop / area : 0;
+      const pibPerCapita = pop > 0 ? (pib * 1000.0) / pop : 0;
+      const superPoder = pop + area + pib + pts + pibPerCapita + (densidade > 0 ? 1.0 / densidade : 0);
+      return { nome, pop, area, pib, pts, densidade, pibPerCapita, superPoder };
+    }
+
+    function compararAtributo(c1, c2, atributo) {
+      let v1, v2, desc, menorVence = false;
+      switch (atributo) {
+        case 'pop':
+          v1 = c1.pop; v2 = c2.pop;
+          desc = 'População (habitantes)'; break;
+        case 'area':
+          v1 = c1.area; v2 = c2.area;
+          desc = 'Área (km²)'; break;
+        case 'pib':
+          v1 = c1.pib; v2 = c2.pib;
+          desc = 'PIB (milhares)'; break;
+        case 'pontos':
+          v1 = c1.pts; v2 = c2.pts;
+          desc = 'Pontos Turísticos'; break;
+        case 'densidade':
+          v1 = c1.densidade; v2 = c2.densidade;
+          desc = 'Densidade Demográfica (hab/km²)';
+          menorVence = true;
+          break;
+        case 'pibcapita':
+          v1 = c1.pibPerCapita; v2 = c2.pibPerCapita;
+          desc = 'PIB per Capita'; break;
+        case 'superpoder':
+        default:
+          v1 = c1.superPoder; v2 = c2.superPoder;
+          desc = 'Super Poder (combinação dos atributos)';
+          break;
+      }
+
+      let vencedor;
+      if (menorVence) {
+        if (v1 < v2) vencedor = c1.nome;
+        else if (v2 < v1) vencedor = c2.nome;
+        else vencedor = 'Empate';
+      } else {
+        if (v1 > v2) vencedor = c1.nome;
+        else if (v2 > v1) vencedor = c2.nome;
+        else vencedor = 'Empate';
+      }
+
+      return { atributo, desc, v1, v2, vencedor, menorVence };
+    }
+
+    function atualizarHighlightVencedor(globalVencedor, c1Nome, c2Nome) {
+      card1.style.boxShadow = '';
+      card2.style.boxShadow = '';
+      if (globalVencedor === c1Nome) {
+        card1.style.boxShadow = '0 0 0 2px #16a34a';
+        card2.style.boxShadow = '0 0 0 0 transparent';
+      } else if (globalVencedor === c2Nome) {
+        card2.style.boxShadow = '0 0 0 2px #16a34a';
+        card1.style.boxShadow = '0 0 0 0 transparent';
+      } else {
+        card1.style.boxShadow = '0 0 0 2px #facc15';
+        card2.style.boxShadow = '0 0 0 2px #facc15';
+      }
+    }
+
+    document.getElementById('btn-trunfo-run').addEventListener('click', () => {
+      trunfoLog.textContent = '';
+
+      const c1 = calcularAtributos(
+        document.getElementById('c1-nome').value || 'Cidade A',
+        Number(document.getElementById('c1-pop').value) || 0,
+        Number(document.getElementById('c1-area').value) || 0,
+        Number(document.getElementById('c1-pib').value) || 0,
+        Number(document.getElementById('c1-pontos').value) || 0
+      );
+      const c2 = calcularAtributos(
+        document.getElementById('c2-nome').value || 'Cidade B',
+        Number(document.getElementById('c2-pop').value) || 0,
+        Number(document.getElementById('c2-area').value) || 0,
+        Number(document.getElementById('c2-pib').value) || 0,
+        Number(document.getElementById('c2-pontos').value) || 0
+      );
+
+      const a1 = document.getElementById('atributo1-select').value;
+      const a2 = document.getElementById('atributo2-select').value;
+
+      if (a2 && a1 === a2) {
+        trunfoLog.textContent = 'Os dois atributos não podem ser iguais. Escolha atributos distintos.';
+        return;
+      }
+
+      const comparacoes = [];
+      comparacoes.push(compararAtributo(c1, c2, a1));
+      if (a2) comparacoes.push(compararAtributo(c1, c2, a2));
+
+      // pontuação simples: 3 pontos por vitória, 1 por empate em cada atributo
+      let pontos1 = 0, pontos2 = 0;
+      let resumo = '';
+
+      comparacoes.forEach((comp, idx) => {
+        const titulo = `Atributo ${idx+1}: ${comp.desc}`;
+        resumo += titulo + '\n';
+        resumo += `${c1.nome}: ${comp.v1.toFixed(2)}\n`;
+        resumo += `${c2.nome}: ${comp.v2.toFixed(2)}\n`;
+        if (comp.vencedor === 'Empate') {
+          resumo += 'Resultado: Empate neste atributo.\n\n';
+          pontos1 += 1; pontos2 += 1;
+        } else {
+          resumo += `Vencedor neste atributo: ${comp.vencedor} ${comp.menorVence ? '(menor valor vence)' : '(maior valor vence)'}\n\n`;
+          if (comp.vencedor === c1.nome) pontos1 += 3;
+          else pontos2 += 3;
+        }
+      });
+
+      resumo += 'Pontuação total da rodada:\n';
+      resumo += `${c1.nome}: ${pontos1}\n`;
+      resumo += `${c2.nome}: ${pontos2}\n\n`;
+
+      let globalVencedor;
+      if (pontos1 > pontos2) globalVencedor = c1.nome;
+      else if (pontos2 > pontos1) globalVencedor = c2.nome;
+      else globalVencedor = 'Empate';
+
+      if (globalVencedor === 'Empate') {
+        resumo += 'Resultado geral: Empate na rodada.';
+      } else {
+        resumo += `Resultado geral: ${globalVencedor} venceu a rodada.`;
+      }
+
+      trunfoLog.textContent = resumo;
+      atualizarHighlightVencedor(globalVencedor, c1.nome, c2.nome);
+    });
+
+    document.getElementById('btn-trunfo-clear').addEventListener('click', () => {
+      trunfoLog.textContent = '';
+      card1.style.boxShadow = '';
+      card2.style.boxShadow = '';
+    });
+
+    // ========= Jogo 3: Xadrez =========
+    const xadrezBoardContainer = document.getElementById('xadrez-board');
+    const xadrezPathDiv = document.getElementById('xadrez-path');
+
+    function renderChessBoard(pathMap) {
+      let html = '<table class="chess-board"><thead><tr><th></th>';
+      const cols = ['a','b','c','d','e','f','g','h'];
+      cols.forEach(c => html += `<th>${c}</th>`);
+      html += '</tr></thead><tbody>';
+
+      for (let row = 8; row >= 1; row--) {
+        html += '<tr><th>' + row + '</th>';
+        for (let ci = 0; ci < cols.length; ci++) {
+          const col = cols[ci];
+          const coord = col + row;
+          const isDark = (ci + row) % 2 === 0;
+          let cls = isDark ? 'square-dark' : 'square-light';
+          const mark = pathMap[coord];
+          if (mark === 'start') cls += ' square-start';
+          else if (mark === 'path') cls += ' square-path';
+
+          html += `<td class="${cls}"><span class="square-label">${col}${row}</span></td>`;
+        }
+        html += '</tr>';
+      }
+
+      html += '</tbody></table>';
+      xadrezBoardContainer.innerHTML = html;
+    }
+
+    function calcularCaminhoPeca(tipo) {
+      const path = [];
+      if (tipo === 'torre') {
+        // Torre: a1 -> direita 5 casas
+        let col = 'a';
+        let linha = 1;
+        path.push({ coord: 'a1', start: true });
+        for (let i = 1; i <= 5; i++) {
+          col = String.fromCharCode(col.charCodeAt(0) + 1);
+          path.push({ coord: col + linha, start: false });
+        }
+      } else if (tipo === 'bispo') {
+        // Bispo: c1, 5 casas diagonal cima-direita
+        let col = 'c';
+        let linha = 1;
+        path.push({ coord: 'c1', start: true });
+        for (let i = 1; i <= 5; i++) {
+          col = String.fromCharCode(col.charCodeAt(0) + 1);
+          linha++;
+          path.push({ coord: col + linha, start: false });
+        }
+      } else if (tipo === 'rainha') {
+        // Rainha: h3, 7 casas à esquerda
+        let col = 'h';
+        let linha = 3;
+        path.push({ coord: 'h3', start: true });
+        for (let i = 1; i <= 7; i++) {
+          col = String.fromCharCode(col.charCodeAt(0) - 1);
+          path.push({ coord: col + linha, start: false });
+        }
+      } else if (tipo === 'cavalo') {
+        // Cavalo: f8; 2 casas para baixo, 1 para esquerda na segunda
+        let col = 'f';
+        let linha = 8;
+        path.push({ coord: 'f8', start: true });
+        for (let i = 1; i <= 2; i++) {
+          linha--;
+          path.push({ coord: col + linha, start: false });
+          if (i === 2) {
+            col = String.fromCharCode(col.charCodeAt(0) - 1);
+            path.push({ coord: col + linha, start: false });
+          }
+        }
+      }
+      return path;
+    }
+
+    document.getElementById('btn-xadrez-run').addEventListener('click', () => {
+      const tipo = document.getElementById('peca-xadrez').value;
+      const path = calcularCaminhoPeca(tipo);
+      const pathMap = {};
+      path.forEach(p => { pathMap[p.coord] = p.start ? 'start' : 'path'; });
+      renderChessBoard(pathMap);
+
+      let desc;
+      if (tipo === 'torre') desc = 'Torre a partir de a1, movendo 5 casas para a direita:';
+      else if (tipo === 'bispo') desc = 'Bispo a partir de c1, movendo 5 casas na diagonal para cima e direita:';
+      else if (tipo === 'rainha') desc = 'Rainha a partir de h3, movendo 7 casas para a esquerda:';
+      else desc = 'Cavalo a partir de f8, descendo 2 casas e depois 1 à esquerda:';
+
+      let texto = `<strong>${desc}</strong><br>`;
+      texto += path.map(p => p.coord + (p.start ? ' (início)' : '')).join(' → ');
+      xadrezPathDiv.innerHTML = texto;
+    });
+
+    // Inicializa tabuleiro de xadrez vazio na carga
+    renderChessBoard({});
+  </script>
+</body>
+</html>

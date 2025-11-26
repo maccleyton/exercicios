@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hub de Jogos em JS</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #111827;
+      color: #e5e7eb;
+    }
+    header {
+      background: #1f2937;
+      padding: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    header button {
+      background: #374151;
+      color: #e5e7eb;
+      border: 1px solid #4b5563;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      cursor: pointer;
+    }
+    header button.active {
+      background: #2563eb;
+      border-color: #1d4ed8;
+    }
+    main {
+      padding: 1rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    section.game {
+      display: none;
+      margin-top: 1rem;
+      background: #020617;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      border: 1px solid #1f2937;
+    }
+    section.game.active {
+      display: block;
+    }
+    h2 {
+      margin-top: 0;
+      color: #93c5fd;
+    }
+    .board {
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+    }
+    .board th, .board td {
+      border: 1px solid #4b5563;
+      width: 24px;
+      height: 24px;
+      text-align: center;
+      font-size: 0.8rem;
+    }
+    .cell-water {
+      background: #0f172a;
+    }
+    .cell-ship {
+      background: #15803d;
+    }
+    .cell-hit {
+      background: #b91c1c;
+    }
+    label {
+      display: block;
+      margin-top: 0.4rem;
+      font-size: 0.9rem;
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 0.25rem;
+      margin-top: 0.1rem;
+      border-radius: 0.25rem;
+      border: 1px solid #4b5563;
+      background: #020617;
+      color: #e5e7eb;
+    }
+    select {
+      width: 100%;
+      padding: 0.25rem;
+      margin-top: 0.2rem;
+      border-radius: 0.25rem;
+      border: 1px solid #4b5563;
+      background: #020617;
+      color: #e5e7eb;
+    }
+    button.action {
+      margin-top: 0.7rem;
+      padding: 0.4rem 0.8rem;
+      background: #16a34a;
+      border: 1px solid #15803d;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      color: #f9fafb;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+    pre, .log {
+      background: #020617;
+      border: 1px solid #1f2937;
+      border-radius: 0.375rem;
+      padding: 0.5rem;
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+      max-height: 240px;
+      overflow-y: auto;
+      margin-top: 0.5rem;
+    }
+    .small {
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <button id="btn-batalha" class="active">Batalha Naval</button>
+    <button id="btn-trunfo">Super Trunfo Cidades</button>
+    <button id="btn-xadrez">Movimentos de Xadrez</button>
+  </header>
+
+  <main>
+    <!-- Jogo 1: Batalha Naval -->
+    <section id="game-batalha" class="game active">
+      <h2>Batalha Naval com Habilidades</h2>
+      <p class="small">
+        Aplica uma habilidade em área (cone, cruz ou octaedro) no centro do tabuleiro contra navios fixos.
+      </p>
+      <div class="grid-2">
+        <div>
+          <label for="habilidade-select">Habilidade</label>
+          <select id="habilidade-select">
+            <option value="cone">Cone de Fogo 🔥</option>
+            <option value="cruz">Cruzada 💥</option>
+            <option value="octaedro">Octaedro 🔷</option>
+          </select>
+          <button class="action" id="btn-batalha-run">Aplicar habilidade</button>
+          <div class="log" id="batalha-log"></div>
+        </div>
+        <div>
+          <div id="batalha-board"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Jogo 2: Super Trunfo Cidades -->
+    <section id="game-trunfo" class="game">
+      <h2>Super Trunfo de Cidades</h2>
+      <p class="small">
+        Preencha os dados das duas cidades, escolha um atributo e compare para ver qual carta vence.
+      </p>
+      <div class="grid-2">
+        <div>
+          <h3>Cidade 1</h3>
+          <label>Nome
+            <input type="text" id="c1-nome" value="Cidade A">
+          </label>
+          <label>População
+            <input type="number" id="c1-pop" value="1000000">
+          </label>
+          <label>Área (km²)
+            <input type="number" id="c1-area" value="500">
+          </label>
+          <label>PIB (milhares)
+            <input type="number" id="c1-pib" value="800000">
+          </label>
+          <label>Pontos Turísticos
+            <input type="number" id="c1-pontos" value="10">
+          </label>
+        </div>
+        <div>
+          <h3>Cidade 2</h3>
+          <label>Nome
+            <input type="text" id="c2-nome" value="Cidade B">
+          </label>
+          <label>População
+            <input type="number" id="c2-pop" value="700000">
+          </label>
+          <label>Área (km²)
+            <input type="number" id="c2-area" value="400">
+          </label>
+          <label>PIB (milhares)
+            <input type="number" id="c2-pib" value="600000">
+          </label>
+          <label>Pontos Turísticos
+            <input type="number" id="c2-pontos" value="7">
+          </label>
+        </div>
+      </div>
+
+      <div style="margin-top:1rem;">
+        <label for="atributo-select">Atributo para comparar</label>
+        <select id="atributo-select">
+          <option value="pop">População (maior vence)</option>
+          <option value="area">Área (maior vence)</option>
+          <option value="pib">PIB (maior vence)</option>
+          <option value="pontos">Pontos Turísticos (maior vence)</option>
+          <option value="densidade">Densidade Demográfica (menor vence)</option>
+          <option value="pibcapita">PIB per Capita (maior vence)</option>
+          <option value="superpoder">Super Poder (maior vence)</option>
+        </select>
+        <button class="action" id="btn-trunfo-run">Comparar cartas</button>
+        <div class="log" id="trunfo-log"></div>
+      </div>
+    </section>
+
+    <!-- Jogo 3: Movimentos de Xadrez -->
+    <section id="game-xadrez" class="game">
+      <h2>Movimentos de Peças de Xadrez</h2>
+      <p class="small">
+        Mostra o caminho da Torre, Bispo, Rainha e Cavalo em um tabuleiro 8×8, usando a mesma lógica dos exemplos em C.
+      </p>
+      <button class="action" id="btn-xadrez-run">Mostrar movimentos</button>
+      <pre id="xadrez-log"></pre>
+    </section>
+  </main>
+
+  <script>
+    // ====== Navegação entre jogos ======
+    const btnBatalha = document.getElementById('btn-batalha');
+    const btnTrunfo = document.getElementById('btn-trunfo');
+    const btnXadrez = document.getElementById('btn-xadrez');
+    const secBatalha = document.getElementById('game-batalha');
+    const secTrunfo = document.getElementById('game-trunfo');
+    const secXadrez = document.getElementById('game-xadrez');
+
+    function showGame(game) {
+      [secBatalha, secTrunfo, secXadrez].forEach(s => s.classList.remove('active'));
+      [btnBatalha, btnTrunfo, btnXadrez].forEach(b => b.classList.remove('active'));
+      if (game === 'batalha') {
+        secBatalha.classList.add('active');
+        btnBatalha.classList.add('active');
+      } else if (game === 'trunfo') {
+        secTrunfo.classList.add('active');
+        btnTrunfo.classList.add('active');
+      } else if (game === 'xadrez') {
+        secXadrez.classList.add('active');
+        btnXadrez.classList.add('active');
+      }
+    }
+
+    btnBatalha.addEventListener('click', () => showGame('batalha'));
+    btnTrunfo.addEventListener('click', () => showGame('trunfo'));
+    btnXadrez.addEventListener('click', () => showGame('xadrez'));
+
+    // ====== Jogo 1: Batalha Naval ======
+    const LINHAS = 10;
+    const COLUNAS = 10;
+    const HABILIDADESLIN = 5;
+    const HABILIDADESCOL = 5;
+    let tabuleiro = Array.from({ length: LINHAS }, () => Array(COLUNAS).fill(0));
+    let matrizCone = Array.from({ length: HABILIDADESLIN }, () => Array(HABILIDADESCOL).fill(0));
+    let matrizCruz = Array.from({ length: HABILIDADESLIN }, () => Array(HABILIDADESCOL).fill(0));
+    let matrizOctaedro = Array.from({ length: HABILIDADESLIN }, () => Array(HABILIDADESCOL).fill(0));
+
+    const batalhaLog = document.getElementById('batalha-log');
+    const batalhaBoardContainer = document.getElementById('batalha-board');
+
+    function inicializarTabuleiro() {
+      for (let i = 0; i < LINHAS; i++) {
+        for (let j = 0; j < COLUNAS; j++) {
+          tabuleiro[i][j] = 0;
+        }
+      }
+    }
+
+    function renderTabuleiro() {
+      let html = '<table class="board"><thead><tr><th></th>';
+      for (let c = 0; c < COLUNAS; c++) {
+        html += '<th>' + String.fromCharCode('A'.charCodeAt(0) + c) + '</th>';
+      }
+      html += '</tr></thead><tbody>';
+      for (let l = 0; l < LINHAS; l++) {
+        html += '<tr><th>' + (l + 1) + '</th>';
+        for (let c = 0; c < COLUNAS; c++) {
+          const v = tabuleiro[l][c];
+          let cls = 'cell-water';
+          if (v === 3) cls = 'cell-ship';
+          if (v === 5) cls = 'cell-hit';
+          html += '<td class="' + cls + '">' + v + '</td>';
+        }
+        html += '</tr>';
+      }
+      html += '</tbody></table>';
+      batalhaBoardContainer.innerHTML = html;
+    }
+
+    function cone(show) {
+      for (let i = 0; i < HABILIDADESLIN; i++) {
+        for (let j = 0; j < HABILIDADESCOL; j++) {
+          if (i === 0 && j === 2) matrizCone[i][j] = 1;
+          else if (i === 1 && j >= 1 && j <= 3) matrizCone[i][j] = 1;
+          else if (i === 2 && j >= 0 && j <= 4) matrizCone[i][j] = 1;
+          else matrizCone[i][j] = 0;
+        }
+      }
+      if (show) {
+        let s = 'Habilidade -> Cone de Fogo 🔥\\n';
+        matrizCone.forEach(l => s += l.join(' ') + '\\n');
+        batalhaLog.textContent += s + '\\n';
+      }
+    }
+
+    function cruz(show) {
+      for (let i = 0; i < HABILIDADESLIN; i++) {
+        for (let j = 0; j < HABILIDADESCOL; j++) {
+          matrizCruz[i][j] = (i === 2 || j === 2) ? 1 : 0;
+        }
+      }
+      if (show) {
+        let s = 'Habilidade -> Cruzada 💥\\n';
+        matrizCruz.forEach(l => s += l.join(' ') + '\\n');
+        batalhaLog.textContent += s + '\\n';
+      }
+    }
+
+    function octaedro(show) {
+      const centro = Math.floor(HABILIDADESLIN / 2);
+      for (let i = 0; i < HABILIDADESLIN; i++) {
+        for (let j = 0; j < HABILIDADESCOL; j++) {
+          matrizOctaedro[i][j] = (Math.abs(i - centro) + Math.abs(j - centro) <= 2) ? 1 : 0;
+        }
+      }
+      if (show) {
+        let s = 'Habilidade -> Octaedro 🔷\\n';
+        matrizOctaedro.forEach(l => s += l.join(' ') + '\\n');
+        batalhaLog.textContent += s + '\\n';
+      }
+    }
+
+    function posicionarNavios() {
+      // mesmas posições fixas do código em C
+      const navioH = [3, 3, 3];
+      const navioV = [3, 3, 3];
+      const navioD1 = [3, 3, 3];
+      const navioD2 = [3, 3, 3];
+
+      let linhaH = 8, colunaH = 3;
+      let linhaV = 7, colunaV = 0;
+      let linhaD1 = 0, colunaD1 = 0;
+      let linhaD2 = 0, colunaD2 = 9;
+
+      // Horizontal
+      for (let i = 0; i < 3; i++) {
+        tabuleiro[linhaH][colunaH + i] = navioH[i];
+      }
+      // Vertical
+      for (let i = 0; i < 3; i++) {
+        tabuleiro[linhaV + i][colunaV] = navioV[i];
+      }
+      // Diagonal principal
+      for (let i = 0; i < 3; i++) {
+        tabuleiro[linhaD1 + i][colunaD1 + i] = navioD1[i];
+      }
+      // Diagonal secundária
+      for (let i = 0; i < 3; i++) {
+        tabuleiro[linhaD2 + i][colunaD2 - i] = navioD2[i];
+      }
+    }
+
+    function aplicarHabilidade(posLinha, posColuna, habilidade) {
+      const centroLinha = Math.floor(HABILIDADESLIN / 2);
+      const centroColuna = Math.floor(HABILIDADESCOL / 2);
+      for (let i = 0; i < HABILIDADESLIN; i++) {
+        for (let j = 0; j < HABILIDADESCOL; j++) {
+          if (habilidade[i][j] === 1) {
+            const alvoLinha = posLinha + i - centroLinha;
+            const alvoColuna = posColuna + j - centroColuna;
+            if (alvoLinha >= 0 && alvoLinha < LINHAS && alvoColuna >= 0 && alvoColuna < COLUNAS) {
+              // marca acerto (5) ou mantém se já era navio
+              tabuleiro[alvoLinha][alvoColuna] = 5;
+            }
+          }
+        }
+      }
+    }
+
+    document.getElementById('btn-batalha-run').addEventListener('click', () => {
+      batalhaLog.textContent = '';
+      inicializarTabuleiro();
+      posicionarNavios();
+      const linhaCentro = Math.floor(LINHAS / 2);
+      const colunaCentro = Math.floor(COLUNAS / 2);
+      const hab = document.getElementById('habilidade-select').value;
+      if (hab === 'cone') {
+        cone(true);
+        aplicarHabilidade(linhaCentro, colunaCentro, matrizCone);
+      } else if (hab === 'cruz') {
+        cruz(true);
+        aplicarHabilidade(linhaCentro, colunaCentro, matrizCruz);
+      } else if (hab === 'octaedro') {
+        octaedro(true);
+        aplicarHabilidade(linhaCentro, colunaCentro, matrizOctaedro);
+      }
+      batalhaLog.textContent += '\\nHabilidade aplicada no centro do tabuleiro.\\n';
+      renderTabuleiro();
+    });
+
+    // inicializa tabuleiro ao carregar
+    inicializarTabuleiro();
+    posicionarNavios();
+    renderTabuleiro();
+
+    // ====== Jogo 2: Super Trunfo Cidades (versão simplificada: 1 atributo) ======
+    const trunfoLog = document.getElementById('trunfo-log');
+
+    function calcularAtributosDaCidade(nome, pop, area, pib, pts) {
+      const densidade = area > 0 ? pop / area : 0;
+      const pibPerCapita = pop > 0 ? (pib * 1000.0) / pop : 0;
+      const superPoder = pop + area + pib + pts + pibPerCapita + (densidade > 0 ? 1.0 / densidade : 0);
+      return { nome, pop, area, pib, pts, densidade, pibPerCapita, superPoder };
+    }
+
+    document.getElementById('btn-trunfo-run').addEventListener('click', () => {
+      trunfoLog.textContent = '';
+
+      const c1 = calcularAtributosDaCidade(
+        document.getElementById('c1-nome').value || 'Cidade 1',
+        Number(document.getElementById('c1-pop').value) || 0,
+        Number(document.getElementById('c1-area').value) || 0,
+        Number(document.getElementById('c1-pib').value) || 0,
+        Number(document.getElementById('c1-pontos').value) || 0
+      );
+      const c2 = calcularAtributosDaCidade(
+        document.getElementById('c2-nome').value || 'Cidade 2',
+        Number(document.getElementById('c2-pop').value) || 0,
+        Number(document.getElementById('c2-area').value) || 0,
+        Number(document.getElementById('c2-pib').value) || 0,
+        Number(document.getElementById('c2-pontos').value) || 0
+      );
+
+      const atributo = document.getElementById('atributo-select').value;
+      let v1, v2, desc, regra;
+
+      switch (atributo) {
+        case 'pop':
+          v1 = c1.pop; v2 = c2.pop;
+          desc = 'População (habitantes)'; regra = 'Maior valor vence.';
+          break;
+        case 'area':
+          v1 = c1.area; v2 = c2.area;
+          desc = 'Área (km²)'; regra = 'Maior valor vence.';
+          break;
+        case 'pib':
+          v1 = c1.pib; v2 = c2.pib;
+          desc = 'PIB (milhares)'; regra = 'Maior valor vence.';
+          break;
+        case 'pontos':
+          v1 = c1.pts; v2 = c2.pts;
+          desc = 'Pontos Turísticos'; regra = 'Maior valor vence.';
+          break;
+        case 'densidade':
+          v1 = c1.densidade; v2 = c2.densidade;
+          desc = 'Densidade Demográfica (hab/km²)'; regra = 'Menor valor vence.';
+          break;
+        case 'pibcapita':
+          v1 = c1.pibPerCapita; v2 = c2.pibPerCapita;
+          desc = 'PIB per Capita'; regra = 'Maior valor vence.';
+          break;
+        case 'superpoder':
+        default:
+          v1 = c1.superPoder; v2 = c2.superPoder;
+          desc = 'Super Poder (combinação de todos os atributos)'; regra = 'Maior valor vence.';
+          break;
+      }
+
+      let vencedor;
+      let comparacao = '';
+      if (atributo === 'densidade') {
+        if (v1 < v2) vencedor = c1.nome;
+        else if (v2 < v1) vencedor = c2.nome;
+        else vencedor = 'Empate';
+      } else {
+        if (v1 > v2) vencedor = c1.nome;
+        else if (v2 > v1) vencedor = c2.nome;
+        else vencedor = 'Empate';
+      }
+
+      comparacao += `Comparando atributo: ${desc}\\n`;
+      comparacao += `${c1.nome}: ${v1.toFixed(2)}\\n`;
+      comparacao += `${c2.nome}: ${v2.toFixed(2)}\\n`;
+      comparacao += `${regra}\\n\\n`;
+
+      if (vencedor === 'Empate') {
+        comparacao += 'Resultado: Empate entre as duas cartas.';
+      } else {
+        comparacao += `Vencedora: ${vencedor}`;
+      }
+
+      // extra: mostra também densidade e PIB per capita calculados
+      comparacao += '\\n\\nResumo dos atributos derivados:';
+      comparacao += `\\n${c1.nome} - Densidade: ${c1.densidade.toFixed(2)}, PIB per Capita: ${c1.pibPerCapita.toFixed(2)}`;
+      comparacao += `\\n${c2.nome} - Densidade: ${c2.densidade.toFixed(2)}, PIB per Capita: ${c2.pibPerCapita.toFixed(2)}`;
+
+      trunfoLog.textContent = comparacao;
+    });
+
+    // ====== Jogo 3: Movimentos de Xadrez ======
+    const xadrezLog = document.getElementById('xadrez-log');
+
+    document.getElementById('btn-xadrez-run').addEventListener('click', () => {
+      let log = '';
+
+      // Torre: a1, 5 casas à direita
+      let i, j;
+      let coluna, linha;
+
+      i = 1;
+      coluna = 'a';
+      linha = 1;
+      log += 'Torre: Posição inicial (a1)\\n';
+      while (i <= 5) {
+        coluna = String.fromCharCode(coluna.charCodeAt(0) + 1);
+        log += `Direita -> ${coluna}${linha}\\n`;
+        i++;
+      }
+      log += '\\n';
+
+      // Bispo: c1, 5 casas na diagonal para cima e direita
+      i = 1;
+      coluna = 'c';
+      linha = 1;
+      log += 'Bispo: Posição inicial (c1)\\n';
+      do {
+        coluna = String.fromCharCode(coluna.charCodeAt(0) + 1);
+        linha++;
+        log += `Cima, Direita -> ${coluna}${linha}\\n`;
+        i++;
+      } while (i <= 5);
+      log += '\\n';
+
+      // Rainha: h3, 7 casas à esquerda
+      coluna = 'h';
+      linha = 3;
+      log += 'Rainha: Posição inicial (h3)\\n';
+      for (i = 1; i <= 7; i++) {
+        coluna = String.fromCharCode(coluna.charCodeAt(0) - 1);
+        log += `Esquerda -> ${coluna}${linha}\\n`;
+      }
+      log += '\\n';
+
+      // Cavalo: f8 -> dois passos para baixo e 1 para esquerda na segunda iteração
+      coluna = 'f';
+      linha = 8;
+      log += 'Cavalo: Posição inicial (f8)\\n';
+      for (i = 1; i <= 2; i++) {
+        linha--;
+        log += `Baixo -> ${coluna}${linha}\\n`;
+        j = i;
+        while (j === 2) {
+          coluna = String.fromCharCode(coluna.charCodeAt(0) - 1);
+          log += `Esquerda -> ${coluna}${linha}\\n`;
+          j++;
+        }
+      }
+      log += '\\n';
+
+      xadrezLog.textContent = log;
+    });
+  </script>
+</body>
+</html>
